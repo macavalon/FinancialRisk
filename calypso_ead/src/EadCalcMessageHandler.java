@@ -122,7 +122,7 @@ public class EadCalcMessageHandler implements HttpHandler
 			}
 			else if(asset.equals("FxForward"))
 			{
-				eadCalculator = new FxForwardEADCalc(notional,maturity);
+				eadCalculator = new FxForwardEADCalc(notional,maturity,spotrate);
 			}
 			
 			double calculatedEad = 0.0;

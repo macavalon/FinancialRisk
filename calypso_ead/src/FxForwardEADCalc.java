@@ -2,10 +2,11 @@
 public class FxForwardEADCalc extends ExposureAtDefaultCalculator
 {
 
-	FxForwardEADCalc(double _notional, double _maturity)
+	FxForwardEADCalc(double _notional, double _maturity, double _spotRate)
 	{
 		maturity = _maturity;
 		notional = _notional;
+		spotRate = _spotRate;
 	}
 	
 	@Override
@@ -25,8 +26,21 @@ public class FxForwardEADCalc extends ExposureAtDefaultCalculator
 	@Override
 	void CalculateAdjustedNotional() {
 		// For foreign exchange derivatives, the adjusted notional is defined as the notional of the foreign
-		// currency leg of the contract, converted to the domestic currency. 
-		adjustedNotional = notional;
+		// currency leg of the contract, converted to the domestic currency. If both legs of a foreign 
+		// exchange derivative are denominated in currencies other than the domestic currency, the
+		// notional amount of each leg is converted to the domestic currency and the leg with the larger
+		// domestic currency value is the adjusted notional amount.
+		//
+		// For USDGBP... USE denomination is greater so 
+		if(spotRate <= 1)
+		{
+			adjustedNotional = notional;
+		}
+		else
+		{
+			adjustedNotional = spotRate * notional;
+		}
+		
 	}
 	
 	@Override
@@ -60,4 +74,5 @@ public class FxForwardEADCalc extends ExposureAtDefaultCalculator
 		
 	}
 
+	private double spotRate;
 }
