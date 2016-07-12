@@ -13,7 +13,8 @@ public class TestRandomNumberGenerators extends TestCase {
 	public TestRandomNumberGenerators( String testName )
 	{
         super( testName );
-        numberOfIntegrationSamples = 10000000;
+
+        numberOfIntegrationSamples = 100000;
     }
 	
 	/**
@@ -62,11 +63,13 @@ public class TestRandomNumberGenerators extends TestCase {
 	    //from http://www.wolframalpha.com/widgets/view.jsp?id=8ab70731b1553f17c11a3bbc87e0b605
 	    double testvalue = 0.74682413281242;
 	    
-	    double tolerance = 0.00000001;
+	    double toleranceUpper = 0.0012; //predictable, not as good as halton sequence
+	    double toleranceLower = 0.0011;
 	    
 	    double difference = Math.abs(integral-testvalue);
 	    
-	    assertTrue(difference > tolerance);
+	    assertTrue(difference < toleranceUpper);
+	    assertTrue(difference > toleranceLower);
     	
     }
     
@@ -109,11 +112,13 @@ public class TestRandomNumberGenerators extends TestCase {
 	    //from http://www.wolframalpha.com/widgets/view.jsp?id=8ab70731b1553f17c11a3bbc87e0b605
 	    double testvalue = 0.74682413281242;
 	    
-	    double tolerance = 0.00000001;
+	    double toleranceUpper = 0.0019;	//predictable, not as good as std parkmiller
+	    double toleranceLower = 0.0018;
 	    
 	    double difference = Math.abs(integral-testvalue);
 	    
-	    assertTrue(difference > tolerance);
+	    assertTrue(difference < toleranceUpper);
+	    assertTrue(difference > toleranceLower);
     	
     }
     
@@ -156,13 +161,65 @@ public class TestRandomNumberGenerators extends TestCase {
 	    //from http://www.wolframalpha.com/widgets/view.jsp?id=8ab70731b1553f17c11a3bbc87e0b605
 	    double testvalue = 0.74682413281242;
 	    
-	    double tolerance = 0.00000001;
+	    double toleranceUpper = 0.0025;	//java random shows wide range of convergence
+	    double toleranceLower = 0.0005;
 	    
 	    double difference = Math.abs(integral-testvalue);
 	    
-	    assertTrue(difference > tolerance);
+	    assertTrue(difference < toleranceUpper);
+	    assertTrue(difference > toleranceLower);
+    	
+    }
+    
+    /**
+     * test functionality provided by halton low discrepancy sequence generator
+     * which implements the randombase interface
+     */
+    public void testHaltonSequence()
+    {
+    	int dimension = 1; // return 1 random number
+    	int seed = 1;
+    	
+    	
+    	RandomBase JavaRandomInst = new HaltonSequence(dimension,seed, "Halton");
+    	
+    	
+    	// test using montecarlo integration
+    	
+    	Function expFunction = new Function() {
+    		public double fn(double x)
+    		{
+    			double xsquared = Math.pow(x, 2);
+    			double y = Math.exp(-xsquared);
+    			
+    			return y;
+    		}
+    		
+    	};
+    	
+    	int numberOfSamples = numberOfIntegrationSamples;
+        
+    	MonteCarloIntegration m = new MonteCarloIntegration(numberOfSamples);
+		m.setFunctionToIntegrate(expFunction);
+		m.setRandomGenerator(JavaRandomInst);
+	    
+	    
+	    double integral = m.calcIntegral();
+	    
+	    
+	    //from http://www.wolframalpha.com/widgets/view.jsp?id=8ab70731b1553f17c11a3bbc87e0b605
+	    double testvalue = 0.74682413281242;
+	    
+	    double toleranceUpper = 0.000065; //predictable, and much higher accuracy than other random generators
+	    double toleranceLower = 0.000064; //for this use with montecarlo
+	    
+	    double difference = Math.abs(integral-testvalue);
+	    
+	    assertTrue(difference < toleranceUpper);
+	    assertTrue(difference > toleranceLower);
     	
     	
     	
     }
+    
 }

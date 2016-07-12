@@ -55,8 +55,11 @@ public class AntiThetic extends RandomBase
 		}
 		else
 		{
-			
-			variates = nextVariates;
+			variates.clear();
+			for(double val : nextVariates)
+			{
+				variates.add(1.0-val);
+			}
 			OddEven = true;
 		}
 	}
